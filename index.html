@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paşa ile Oyun</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #pasa {
+      max-width: 350px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      user-select: none;
+    }
+
+    .kiss {
+      position: absolute;
+      font-size: 2rem;
+      animation: floatUp 1s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-100px) scale(1.5); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Paşa'nın fotoğrafı -->
+  <img id="pasa" src="pasa.jpg" alt="Paşa">
+
+  <!-- Ses dosyası -->
+  <audio id="angrySound" src="kizma.mp3"></audio>
+
+  <script>
+    const pasa = document.getElementById("pasa");
+    const angrySound = document.getElementById("angrySound");
+
+    let clickTimes = [];
+
+    // Ekrana öpücük efekti bırak
+    function addKiss(x, y) {
+      const kiss = document.createElement("div");
+      kiss.className = "kiss";
+      kiss.textContent = "💋";
+      kiss.style.left = x + "px";
+      kiss.style.top = y + "px";
+      document.body.appendChild(kiss);
+
+      setTimeout(() => kiss.remove(), 1000);
+    }
+
+    // Tıklama/dokunma yakala
+    function handleKiss(e) {
+      e.preventDefault(); // sağ tık menüsünü kapat
+      const x = e.clientX || (e.touches && e.touches[0].clientX);
+      const y = e.clientY || (e.touches && e.touches[0].clientY);
+
+      if (x && y) addKiss(x, y);
+
+      // Tıklama zamanını kaydet
+      const now = Date.now();
+      clickTimes.push(now);
+
+      // Son 5 saniyeyi kontrol et
+      clickTimes = clickTimes.filter(t => now - t < 5000);
+
+      if (clickTimes.length > 10) { // 5 saniyede 10’dan fazla tıklama
+        angrySound.play();
+        clickTimes = []; // sıfırla
+      }
+    }
+
+    // PC: sağ tık
+    pasa.addEventListener("contextmenu", handleKiss);
+
+    // Telefon: ekrana dokunma
+    pasa.addEventListener("touchstart", handleKiss);
+  </script>
+</body>
+</html>
